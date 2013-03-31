@@ -1,4 +1,5 @@
 import Data.List.Ordered
+import System.Environment
 
 divides x y = y `mod` x == 0
 dividedBy x y = y `divides` x
@@ -54,4 +55,14 @@ squareOfSum n = (sum [1..n]) ^ 2
 
 solution6 = (squareOfSum 100) - (sumOfSquares 100)
 
-main = putStrLn $ show solution6
+main = do args <- getArgs
+          putStr $ solve args
+
+solve []                  = ""
+solve ("-solution1":args) = show solution1 ++ "\n" ++ solve args
+solve ("-solution2":args) = show solution2 ++ "\n" ++ solve args
+solve ("-solution3":args) = show solution3 ++ "\n" ++ solve args
+solve ("-solution4":args) = show solution4 ++ "\n" ++ solve args
+solve ("-solution5":args) = show solution5 ++ "\n" ++ solve args
+solve ("-solution6":args) = show solution6 ++ "\n" ++ solve args
+solve _                   = "usage: ./euler -solution<num>\n"
