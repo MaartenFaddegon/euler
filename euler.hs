@@ -48,4 +48,10 @@ listDivides xs y = foldr (\x accum -> accum && x `divides` y) True xs
 
 solution5 = head $ filter (listDivides [1..20]) [1..]
 
-main = putStrLn $ show solution5
+sumOfSquares n = sum [x^2 | x <- [1..n]]
+
+squareOfSum n = (sum [1..n]) ^ 2
+
+solution6 = (squareOfSum 100) - (sumOfSquares 100)
+
+main = putStrLn $ show solution6
