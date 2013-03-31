@@ -44,4 +44,8 @@ palindromic x = s == s'
 
 solution4 = maximum [x*y | x <- [1..999], y <- [1..999], palindromic (x*y)]
 
-main = putStrLn $ show solution4
+listDivides xs y = foldr (\x accum -> accum && x `divides` y) True xs
+
+solution5 = head $ filter (listDivides [1..20]) [1..]
+
+main = putStrLn $ show solution5
