@@ -55,6 +55,8 @@ squareOfSum n = (sum [1..n]) ^ 2
 
 solution6 = (squareOfSum 100) - (sumOfSquares 100)
 
+solution7 = primes !! (10001-1)
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -65,4 +67,5 @@ solve ("-solution3":args) = show solution3 ++ "\n" ++ solve args
 solve ("-solution4":args) = show solution4 ++ "\n" ++ solve args
 solve ("-solution5":args) = show solution5 ++ "\n" ++ solve args
 solve ("-solution6":args) = show solution6 ++ "\n" ++ solve args
+solve ("-solution7":args) = show solution7 ++ "\n" ++ solve args
 solve _                   = "usage: ./euler -solution<num>\n"
