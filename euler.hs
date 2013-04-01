@@ -87,6 +87,40 @@ solution8 = maximum $ map product $ consecutiveSubsets 5 $ digitsToInts
           ++ "05886116467109405077541002256983155200055935729725"
           ++ "71636269561882670428252483600823257530420752963450"
 
+interleave (x:xs) (y:ys) = x:y:(interleave xs ys)
+
+-- Nick Lord "A uniform construction of some infinite coprime sequences"
+coprimes = [(2,1),(3,1)] ++ interleave (gen (2,1)) (gen (3,1))
+    where gen (m,n) = let branch1 = (2*m-n, m)
+                          branch2 = (2*m+n, m)
+                          branch3 = (  m+2*n,n)
+                      in  [branch1, branch2, branch3] 
+                          ++ (gen branch1) ++ (gen branch2) ++ (gen branch3)
+
+-- Euclid's formula
+primitivePythagoreanTriples = map ppt coprimes
+    where ppt (m,n) = (m^2 - n^2, 2*m*n, m^2 + n^2)
+
+pythagoreanTripleVariations (a,b,c) = [(k*a,k*b,k*c) | k <- [1..]]
+
+
+isPT (a,b,c) = a^2 + b^2 == c^2
+
+testPPT = [] == (filter (not . isPT) $ take 100 primitivePythagoreanTriples)
+
+testPT = [] == (filter (not . isPT) $ pts)
+    where pts  = foldl (++) [] $ map ((take 5) . pythagoreanTripleVariations) ppts
+          ppts = take 10 primitivePythagoreanTriples
+
+solution9 = case pt1000 of
+                []           -> -1
+                ((a,b,c):ts) -> a*b*c
+    where pt1000 = dropWhile (\(a,b,c) -> a + b + c /= 1000) $ reverse pts
+          pts    = foldl (++) [] $ map (takeW . pythagoreanTripleVariations) ppts
+          ppts   = takeW primitivePythagoreanTriples
+          takeW  = takeWhile (\(a,b,c) -> a + b + c <= 1000)
+
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -99,4 +133,5 @@ solve ("-solution5":args) = show solution5 ++ "\n" ++ solve args
 solve ("-solution6":args) = show solution6 ++ "\n" ++ solve args
 solve ("-solution7":args) = show solution7 ++ "\n" ++ solve args
 solve ("-solution8":args) = show solution8 ++ "\n" ++ solve args
+solve ("-solution9":args) = show solution9 ++ "\n" ++ solve args
 solve _                   = "usage: ./euler -solution<num>\n"
