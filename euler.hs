@@ -120,18 +120,20 @@ solution9 = case pt1000 of
           ppts   = takeW primitivePythagoreanTriples
           takeW  = takeWhile (\(a,b,c) -> a + b + c <= 1000)
 
+solution10 = sum $ takeWhile (< 2000000) primes
 
 main = do args <- getArgs
           putStr $ solve args
 
-solve []                  = ""
-solve ("-solution1":args) = show solution1 ++ "\n" ++ solve args
-solve ("-solution2":args) = show solution2 ++ "\n" ++ solve args
-solve ("-solution3":args) = show solution3 ++ "\n" ++ solve args
-solve ("-solution4":args) = show solution4 ++ "\n" ++ solve args
-solve ("-solution5":args) = show solution5 ++ "\n" ++ solve args
-solve ("-solution6":args) = show solution6 ++ "\n" ++ solve args
-solve ("-solution7":args) = show solution7 ++ "\n" ++ solve args
-solve ("-solution8":args) = show solution8 ++ "\n" ++ solve args
-solve ("-solution9":args) = show solution9 ++ "\n" ++ solve args
-solve _                   = "usage: ./euler -solution<num>\n"
+solve []                   = ""
+solve ("-solution1":args)  = show solution1 ++ "\n" ++ solve args
+solve ("-solution2":args)  = show solution2 ++ "\n" ++ solve args
+solve ("-solution3":args)  = show solution3 ++ "\n" ++ solve args
+solve ("-solution4":args)  = show solution4 ++ "\n" ++ solve args
+solve ("-solution5":args)  = show solution5 ++ "\n" ++ solve args
+solve ("-solution6":args)  = show solution6 ++ "\n" ++ solve args
+solve ("-solution7":args)  = show solution7 ++ "\n" ++ solve args
+solve ("-solution8":args)  = show solution8 ++ "\n" ++ solve args
+solve ("-solution9":args)  = show solution9 ++ "\n" ++ solve args
+solve ("-solution10":args) = show solution10 ++ "\n" ++ solve args
+solve _                    = "usage: ./euler -solution<num>\n"
