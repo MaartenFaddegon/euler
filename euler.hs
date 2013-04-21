@@ -3,6 +3,10 @@ import System.Environment
 import Data.Char
 import Debug.Trace
 import Data.List
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IntMap
+import Data.Tuple
+import Data.Maybe
 
 divides x y = y `mod` x == 0
 dividedBy x y = y `divides` x
@@ -296,6 +300,22 @@ solution13 = take 10 $ show
            + 20849603980134001723930671666823555245252804609722
            + 53503534226472524250874054075591789781264330331690
 
+nextCollatz n = if even n then n `div` 2
+                          else 3 * n + 1
+
+collatzSequence n
+    | n == 1    = [1]
+    | otherwise = n : collatzSequence (nextCollatz n)
+
+longestCollatzChain' (m, l_m) n
+    | l_n > l_m = (n ,l_n)
+    | otherwise = (m, l_m)
+    where l_n = length $ collatzSequence n
+
+longestCollatzChain n = foldl longestCollatzChain' (1,1) [2..n]
+
+solution14 = fst $ longestCollatzChain 1000000
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -315,4 +335,5 @@ solve ("-solution11":args) = show solution11 ++ "\n" ++ solve args
 solve ("-test12":args)     = test12          ++ "\n" ++ solve args
 solve ("-solution12":args) = show solution12 ++ "\n" ++ solve args
 solve ("-solution13":args) = solution13      ++ "\n" ++ solve args
+solve ("-solution14":args) = show solution14 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
