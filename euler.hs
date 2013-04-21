@@ -1,6 +1,8 @@
-import Data.List.Ordered
+import Data.List.Ordered (minus)
 import System.Environment
 import Data.Char
+import Debug.Trace
+import Data.List
 
 divides x y = y `mod` x == 0
 dividedBy x y = y `divides` x
@@ -27,15 +29,16 @@ primes = 2 : primes'
 
 -- Note that using primes rather than primesUpTo allows laziness
 -- to do its jobs and stop as soon as n is factored.
-factorize n = factorize' n $ primes
-    where factorize' n ps
+primeFactors n = primeFactors' n $ primes
+    where primeFactors' n ps
             | n == 1    = []
             | otherwise = let ps' = dropWhile (not . (n `dividedBy`)) ps
                           in  case ps' of
-                          (p:ps'') -> p : (factorize' (n `div` p) ps')
-                          ps''     -> ps''
+                          (p:ps'') -> p : (primeFactors' (n `div` p) ps')
+                          ps''     -> ps'
 
-solution3 = last $ factorize 600851475143
+test3     = primeFactors 600851475143
+solution3 = last $ primeFactors 600851475143
 
 -- Yes, we could compare only the first half of the strings. But determining
 -- how long the string actually is, probably needs equally much time as just
@@ -175,19 +178,38 @@ solution11 = maximum $ map product
                       ,[01,70,54,71,83,51,54,69,16,92,33,48,61,43,52,01,89,19,67,48]
                       ]
 
+triangularNumber n = (n * (n+1)) `div` 2
+
+triangularNumbers = [triangularNumber n | n <- [1..]]
+
+powerset :: [a] -> [[a]]
+powerset = subsequences
+
+-- find all integers that divise n
+factors n  = map (\ps -> foldr (*) 1 ps) pss
+    where pss = nub $ powerset $ primeFactors n
+
+test12 = foldl (\acc (n,fs) -> acc ++ show n ++ "\t" ++ show fs ++ "\n" ) ""
+       $ map (\n -> (n, factors n)) $ take 7 triangularNumbers
+solution12 = (\(n,_)-> n) $ head $ dropWhile (\(_,f) -> f<500) 
+                                 $ map (\n -> (n, (length . factors) n)) triangularNumbers
+
 main = do args <- getArgs
           putStr $ solve args
 
 solve []                   = ""
-solve ("-solution1":args)  = show solution1 ++ "\n" ++ solve args
-solve ("-solution2":args)  = show solution2 ++ "\n" ++ solve args
-solve ("-solution3":args)  = show solution3 ++ "\n" ++ solve args
-solve ("-solution4":args)  = show solution4 ++ "\n" ++ solve args
-solve ("-solution5":args)  = show solution5 ++ "\n" ++ solve args
-solve ("-solution6":args)  = show solution6 ++ "\n" ++ solve args
-solve ("-solution7":args)  = show solution7 ++ "\n" ++ solve args
-solve ("-solution8":args)  = show solution8 ++ "\n" ++ solve args
-solve ("-solution9":args)  = show solution9 ++ "\n" ++ solve args
+solve ("-solution1":args)  = show solution1  ++ "\n" ++ solve args
+solve ("-solution2":args)  = show solution2  ++ "\n" ++ solve args
+solve ("-test3":args)      = show test3      ++ "\n" ++ solve args
+solve ("-solution3":args)  = show solution3  ++ "\n" ++ solve args
+solve ("-solution4":args)  = show solution4  ++ "\n" ++ solve args
+solve ("-solution5":args)  = show solution5  ++ "\n" ++ solve args
+solve ("-solution6":args)  = show solution6  ++ "\n" ++ solve args
+solve ("-solution7":args)  = show solution7  ++ "\n" ++ solve args
+solve ("-solution8":args)  = show solution8  ++ "\n" ++ solve args
+solve ("-solution9":args)  = show solution9  ++ "\n" ++ solve args
 solve ("-solution10":args) = show solution10 ++ "\n" ++ solve args
 solve ("-solution11":args) = show solution11 ++ "\n" ++ solve args
+solve ("-test12":args)     = test12          ++ "\n" ++ solve args
+solve ("-solution12":args) = show solution12 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
