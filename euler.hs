@@ -316,6 +316,11 @@ longestCollatzChain n = foldl longestCollatzChain' (1,1) [2..n]
 
 solution14 = fst $ longestCollatzChain 1000000
 
+factorial n = product [1..n]
+
+test15     = (factorial (2 +2 )) `div` ((factorial 2 ) * (factorial 2 ))
+solution15 = (factorial (20+20)) `div` ((factorial 20) * (factorial 20))
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -336,4 +341,6 @@ solve ("-test12":args)     = test12          ++ "\n" ++ solve args
 solve ("-solution12":args) = show solution12 ++ "\n" ++ solve args
 solve ("-solution13":args) = solution13      ++ "\n" ++ solve args
 solve ("-solution14":args) = show solution14 ++ "\n" ++ solve args
+solve ("-test15":args)     = show test15     ++ "\n" ++ solve args
+solve ("-solution15":args) = show solution15 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
