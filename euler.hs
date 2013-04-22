@@ -1,3 +1,5 @@
+-- Maarten Faddegon
+
 import Data.List.Ordered (minus)
 import System.Environment
 import Data.Char
