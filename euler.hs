@@ -1,4 +1,4 @@
--- Maarten Faddegon
+-- Some project Euler solutions; Maarten Faddegon
 
 import Data.List.Ordered (minus)
 import System.Environment
