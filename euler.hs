@@ -327,6 +327,44 @@ sumOfDigits i = sum $ map digitToInt $ show i
 test16     = sumOfDigits 32768
 solution16 = sumOfDigits (2^1000)
 
+prefixAnd s
+    | s == ""              = ""
+    | "and" `isPrefixOf` s = s
+    | otherwise            = "and" ++ s
+
+numToWord i
+    | i == 0     = ""      -- the empty 0 case is used to avoid making exceptions for 20, 30 etc.
+    | i == 1     = "one"
+    | i == 2     = "two"
+    | i == 3     = "three"
+    | i == 4     = "four"
+    | i == 5     = "five"
+    | i == 6     = "six"
+    | i == 7     = "seven"
+    | i == 8     = "eight"
+    | i == 9     = "nine"
+    | i == 10    = "ten"
+    | i == 11    = "eleven"
+    | i == 12    = "twelve"
+    | i == 13    = "thirteen"
+    | i == 15    = "fifteen"
+    | i == 18    = "eighteen"
+    | i <= 19    = numToWord (i-10) ++ "teen"
+    | i <= 29    = "twenty"   ++ numToWord (i `mod` 10)
+    | i <= 39    = "thirty"   ++ numToWord (i `mod` 10)
+    | i <= 49    = "forty"    ++ numToWord (i `mod` 10)
+    | i <= 59    = "fifty"    ++ numToWord (i `mod` 10)
+    | i <= 69    = "sixty"    ++ numToWord (i `mod` 10)
+    | i <= 79    = "seventy"  ++ numToWord (i `mod` 10)
+    | i <= 89    = "eighty"   ++ numToWord (i `mod` 10)
+    | i <= 99    = "ninety"   ++ numToWord (i `mod` 10)
+    | i <= 999   =  numToWord  (i `div` 100)  ++ "hundred"  ++ (prefixAnd .numToWord) (i `mod` 100)
+    | i <= 9999  =  numToWord  (i `div` 1000) ++ "thousand" ++ (prefixAnd . numToWord) (i `mod` 1000)
+
+test17     = foldl (\acc i -> acc ++ show i ++ " " ++ numToWord i ++ "(" ++ (show . length . numToWord) i ++ ")\n") 
+                   "" [18,20,21,115,342,1000]
+solution17 = foldl (\sum i -> sum + (length . numToWord) i) 0 [1..1000]
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -351,4 +389,6 @@ solve ("-test15":args)     = show test15     ++ "\n" ++ solve args
 solve ("-solution15":args) = show solution15 ++ "\n" ++ solve args
 solve ("-test16":args)     = show test16     ++ "\n" ++ solve args
 solve ("-solution16":args) = show solution16 ++ "\n" ++ solve args
+solve ("-test17":args)     = test17          ++ "\n" ++ solve args
+solve ("-solution17":args) = show solution17 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
