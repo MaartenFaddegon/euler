@@ -399,15 +399,23 @@ solution18 = maximumPathSum [ [75]
                             , [04, 62, 98, 27, 23, 09, 70, 98, 73, 93, 38, 53, 60, 04, 23]
                             ]
 
-data DayOfWeek = Monday | Tuesday | Wednesday | Thursday | Friday | Saterday | Sunday
-                 deriving(Show)
 data Month     = Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec
-                 deriving (Eq, Show)
+                 deriving (Eq, Show, Ord)
 data Date      = Date {day :: Integer, month :: Month, year :: Integer}
+                 deriving (Eq)
 
 instance Show Date where
-    show date@(Date{day=day, month=month,year=year}) 
-        = (show . dayOfWeek) date ++ " " ++ show day ++ " " ++ show month ++ " " ++ show year
+    show date@(Date{day=day, month=month,year=year}) = show day ++ " " ++ show month ++ " " ++ show year
+
+instance Ord Date where
+  (Date {day=day,month=month,year=year}) `compare` (Date {day=day',month=month',year=year'})
+    | year > year'   = GT
+    | year < year'   = LT
+    | month > month' = GT
+    | month < month' = LT
+    | day > day'     = GT
+    | day < day'     = LT
+    | otherwise      = EQ
 
 -- A leap year occurs on any year evenly divisible by 4, but not on a century 
 -- unless it is divisible by 400.
@@ -429,7 +437,8 @@ nextMonth month
     | month == Jan = Feb
     | month == Feb = Mar
     | month == Mar = Apr
-    | month == Apr = Jun
+    | month == Apr = May
+    | month == May = Jun
     | month == Jun = Jul
     | month == Jul = Aug
     | month == Aug = Sep
@@ -438,20 +447,35 @@ nextMonth month
     | month == Nov = Dec
     | month == Dec = Jan
 
-nextDate date@(Date{day=day, month=month, year=year}) = Date {day=day', month=month', year=year'}
-    where day'                 = (day + 1) `mod` (daysInMonth date)
+mod1 i j
+    | i > j     = 1
+    | otherwise = i
+
+-- add 'days' to 'date' and get a new date (note that this only works for values of 'days' such that
+-- no more than 1 month needs to be added)
+datePlus days date@(Date{day=day, month=month, year=year}) = Date {day=day', month=month', year=year'}
+    where day'                                 = (day + days) `mod1` (daysInMonth date)
           month'
-            | day' > day       = month
-            | otherwise        = nextMonth month
+            | day' > day                       = month
+            | otherwise                        = nextMonth month
           year'
-            | month /= month' 
-              && month' == Jan = year + 1
-            | otherwise        = year
+            | month /= month' && month' == Jan = year + 1
+            | otherwise                        = year
 
-dayOfWeek date = Monday
+nextWeek = datePlus 7
 
-test19 =  show Date{day=24,month=Apr,year=2013} ++ "\n" 
-       ++ (show . nextDate) Date{day=31,month=Dec,year=2012}
+nextWeekWhile :: (Date->Bool) -> Date -> Integer -> (Date,Integer)
+nextWeekWhile p date i
+    | p date    = nextWeekWhile p (nextWeek date) (i+1)
+    | otherwise = (date, i)
+
+sundays from to = (i,last)
+    where firstSun            = Date {day=7,month=Jan,year=1900}
+          (firstSunAfterTo,_) = nextWeekWhile (<from) firstSun 0
+          (last,i)            = nextWeekWhile (<to)   firstSunAfterTo 0
+
+test19     = nextWeekWhile (<Date{day=30,month=Apr,year=2013}) Date{day=7,month=Apr,year=2013} 0
+solution19 = sundays Date{day=1,month=Jan,year=1901} Date{day=31,month=Dec,year=2000}
 
 main = do args <- getArgs
           putStr $ solve args
@@ -481,5 +505,6 @@ solve ("-test17":args)     = test17          ++ "\n" ++ solve args
 solve ("-solution17":args) = show solution17 ++ "\n" ++ solve args
 solve ("-test18":args)     = show test18     ++ "\n" ++ solve args
 solve ("-solution18":args) = show solution18 ++ "\n" ++ solve args
-solve ("-test19":args)     = test19          ++ "\n" ++ solve args
+solve ("-test19":args)     = show test19     ++ "\n" ++ solve args
+solve ("-solution19":args) = show solution19 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
