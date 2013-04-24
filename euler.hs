@@ -10,8 +10,10 @@ import qualified Data.IntMap as IntMap
 import Data.Tuple
 import Data.Maybe
 
-divides x y = y `mod` x == 0
-dividedBy x y = y `divides` x
+divides x y    = y `mod` x == 0
+dividedBy x y  = y `divides` x
+-- notDivides     = not . divides
+notDivides x y    = not $ divides x y
 
 solution1 = sum [x | x <- [1..999], 3 `divides` x || 5 `divides` x]
 
@@ -397,6 +399,60 @@ solution18 = maximumPathSum [ [75]
                             , [04, 62, 98, 27, 23, 09, 70, 98, 73, 93, 38, 53, 60, 04, 23]
                             ]
 
+data DayOfWeek = Monday | Tuesday | Wednesday | Thursday | Friday | Saterday | Sunday
+                 deriving(Show)
+data Month     = Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec
+                 deriving (Eq, Show)
+data Date      = Date {day :: Integer, month :: Month, year :: Integer}
+
+instance Show Date where
+    show date@(Date{day=day, month=month,year=year}) 
+        = (show . dayOfWeek) date ++ " " ++ show day ++ " " ++ show month ++ " " ++ show year
+
+-- A leap year occurs on any year evenly divisible by 4, but not on a century 
+-- unless it is divisible by 400.
+leapYear Date {year=year} = 4 `divides` year && (100 `notDivides` year || 400 `divides` year)
+
+-- Thirty days has September,
+-- April, June and November.
+-- All the rest have thirty-one,
+-- Saving February alone,
+-- Which has twenty-eight, rain or shine.
+-- And on leap years, twenty-nine.
+daysInMonth date@(Date{month=month})
+    | (month == Sep) || month == Apr || month == Jun || month == Nov = 30
+    | month == Feb && leapYear date                                  = 29
+    | month == Feb                                                   = 28
+    | otherwise                                                      = 31
+
+nextMonth month
+    | month == Jan = Feb
+    | month == Feb = Mar
+    | month == Mar = Apr
+    | month == Apr = Jun
+    | month == Jun = Jul
+    | month == Jul = Aug
+    | month == Aug = Sep
+    | month == Sep = Oct
+    | month == Oct = Nov
+    | month == Nov = Dec
+    | month == Dec = Jan
+
+nextDate date@(Date{day=day, month=month, year=year}) = Date {day=day', month=month', year=year'}
+    where day'                 = (day + 1) `mod` (daysInMonth date)
+          month'
+            | day' > day       = month
+            | otherwise        = nextMonth month
+          year'
+            | month /= month' 
+              && month' == Jan = year + 1
+            | otherwise        = year
+
+dayOfWeek date = Monday
+
+test19 =  show Date{day=24,month=Apr,year=2013} ++ "\n" 
+       ++ (show . nextDate) Date{day=31,month=Dec,year=2012}
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -425,4 +481,5 @@ solve ("-test17":args)     = test17          ++ "\n" ++ solve args
 solve ("-solution17":args) = show solution17 ++ "\n" ++ solve args
 solve ("-test18":args)     = show test18     ++ "\n" ++ solve args
 solve ("-solution18":args) = show solution18 ++ "\n" ++ solve args
+solve ("-test19":args)     = test19          ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
