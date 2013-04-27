@@ -475,10 +475,8 @@ nextDate date@(Date{dayOfWeek=dow,  day=day,  month=month,  year=year})
             | otherwise                        = year
 
 -- 1 Jan 1900 was a Monday.
-dateList :: [Date]
 dateList = dateList' Date{dayOfWeek=Mon, day=1, month=Jan, year=1900}
-    where dateList' :: Date -> [Date]
-          dateList' d = d : dateList' (nextDate d)
+    where dateList' d = d : dateList' (nextDate d)
 
 isFirstOfMonth Date{day=day}       = day == 1
 isSunday       Date{dayOfWeek=dow} = dow == Sun
@@ -493,6 +491,29 @@ solution19 = length
            where shutup = Mon
 
 solution20 = (sumOfDigits . factorial) 100
+
+properFactors i
+    | length f <= 1 = []
+    | otherwise     = init f
+    where f = factors i
+
+amicable a
+    | b == 0    = Nothing
+    | d b == a  = Just (a, b)
+    | otherwise = Nothing
+    where d i = case properFactors i of
+                [] -> 0
+                fs -> sum fs
+          b = d a
+
+amicablePairs []     = []
+amicablePairs (a:as)
+    | isJust pair = fromJust pair : amicablePairs as
+    | otherwise   = amicablePairs as
+    where pair = amicable a
+
+test21     = amicablePairs [1..284]
+solution21 = sum $ map fst $ amicablePairs [1..10000]
 
 main = do args <- getArgs
           putStr $ solve args
@@ -524,4 +545,6 @@ solve ("-test18":args)     = show test18     ++ "\n" ++ solve args
 solve ("-solution18":args) = show solution18 ++ "\n" ++ solve args
 solve ("-solution19":args) = show solution19 ++ "\n" ++ solve args
 solve ("-solution20":args) = show solution20 ++ "\n" ++ solve args
+solve ("-test21":args)     = show test21     ++ "\n" ++ solve args
+solve ("-solution21":args) = show solution21 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
