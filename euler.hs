@@ -492,6 +492,8 @@ solution19 = length
            -- complains if it is not initialized
            where shutup = Mon
 
+solution20 = (sumOfDigits . factorial) 100
+
 main = do args <- getArgs
           putStr $ solve args
 
@@ -521,4 +523,5 @@ solve ("-solution17":args) = show solution17 ++ "\n" ++ solve args
 solve ("-test18":args)     = show test18     ++ "\n" ++ solve args
 solve ("-solution18":args) = show solution18 ++ "\n" ++ solve args
 solve ("-solution19":args) = show solution19 ++ "\n" ++ solve args
+solve ("-solution20":args) = show solution20 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
