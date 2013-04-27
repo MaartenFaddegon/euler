@@ -401,11 +401,14 @@ solution18 = maximumPathSum [ [75]
 
 data Month     = Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec
                  deriving (Eq, Show, Ord)
-data Date      = Date {day :: Integer, month :: Month, year :: Integer}
+data Date      = Date {dayOfWeek :: Day, day :: Integer, month :: Month, year :: Integer}
                  deriving (Eq)
+data Day       = Mon | Tue | Wed | Thu | Fri | Sat | Sun
+                 deriving (Eq,Show)
 
 instance Show Date where
-    show date@(Date{day=day, month=month,year=year}) = show day ++ " " ++ show month ++ " " ++ show year
+    show date@(Date{ dayOfWeek=dow, day=day, month=month,year=year}) 
+         = show dow ++ " " ++ show day ++ " " ++ show month ++ " " ++ show year
 
 instance Ord Date where
   (Date {day=day,month=month,year=year}) `compare` (Date {day=day',month=month',year=year'})
@@ -447,14 +450,23 @@ nextMonth month
     | month == Nov = Dec
     | month == Dec = Jan
 
+nextDay day
+    | day == Mon = Tue
+    | day == Tue = Wed
+    | day == Wed = Thu
+    | day == Thu = Fri
+    | day == Fri = Sat
+    | day == Sat = Sun
+    | day == Sun = Mon
+
 mod1 i j
     | i > j     = 1
     | otherwise = i
 
--- add 'days' to 'date' and get a new date (note that this only works for values of 'days' such that
--- no more than 1 month needs to be added)
-datePlus days date@(Date{day=day, month=month, year=year}) = Date {day=day', month=month', year=year'}
-    where day'                                 = (day + days) `mod1` (daysInMonth date)
+nextDate date@(Date{dayOfWeek=dow,  day=day,  month=month,  year=year})
+             = Date{dayOfWeek=dow', day=day', month=month', year=year'}
+    where dow'                                 = nextDay dow
+          day'                                 = (day + 1) `mod1` (daysInMonth date)
           month'
             | day' > day                       = month
             | otherwise                        = nextMonth month
@@ -462,20 +474,23 @@ datePlus days date@(Date{day=day, month=month, year=year}) = Date {day=day', mon
             | month /= month' && month' == Jan = year + 1
             | otherwise                        = year
 
-nextWeek = datePlus 7
+-- 1 Jan 1900 was a Monday.
+dateList :: [Date]
+dateList = dateList' Date{dayOfWeek=Mon, day=1, month=Jan, year=1900}
+    where dateList' :: Date -> [Date]
+          dateList' d = d : dateList' (nextDate d)
 
-nextWeekWhile :: (Date->Bool) -> Date -> Integer -> (Date,Integer)
-nextWeekWhile p date i
-    | p date    = nextWeekWhile p (nextWeek date) (i+1)
-    | otherwise = (date, i)
+isFirstOfMonth Date{day=day}       = day == 1
+isSunday       Date{dayOfWeek=dow} = dow == Sun
 
-sundays from to = (i,last)
-    where firstSun            = Date {day=7,month=Jan,year=1900}
-          (firstSunAfterTo,_) = nextWeekWhile (<from) firstSun 0
-          (last,i)            = nextWeekWhile (<to)   firstSunAfterTo 0
-
-test19     = nextWeekWhile (<Date{day=30,month=Apr,year=2013}) Date{day=7,month=Apr,year=2013} 0
-solution19 = sundays Date{day=1,month=Jan,year=1901} Date{day=31,month=Dec,year=2000}
+solution19 = length
+           $ filter    (\d -> isFirstOfMonth d && isSunday d) 
+           $ takeWhile (< Date{dayOfWeek=shutup, day=31,month=Dec,year=2000})
+           $ dropWhile (< Date{dayOfWeek=shutup, day=1, month=Jan,year=1901})
+           $ dateList
+           -- dayOfWeek is not actually used in the comparison, but ghc still
+           -- complains if it is not initialized
+           where shutup = Mon
 
 main = do args <- getArgs
           putStr $ solve args
@@ -505,6 +520,5 @@ solve ("-test17":args)     = test17          ++ "\n" ++ solve args
 solve ("-solution17":args) = show solution17 ++ "\n" ++ solve args
 solve ("-test18":args)     = show test18     ++ "\n" ++ solve args
 solve ("-solution18":args) = show solution18 ++ "\n" ++ solve args
-solve ("-test19":args)     = show test19     ++ "\n" ++ solve args
 solve ("-solution19":args) = show solution19 ++ "\n" ++ solve args
 solve _                    = "usage: ./euler -solution<num>\n"
