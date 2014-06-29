@@ -1,7 +1,7 @@
 -- Some project Euler solutions; Maarten Faddegon
-
-import Data.List.Ordered (minus)
-import System.Environment
+module Euler where
+import Libnum
+import Liblist
 import Data.Char
 import Debug.Trace
 import Data.List
@@ -10,50 +10,12 @@ import qualified Data.IntMap as IntMap
 import Data.Tuple
 import Data.Maybe
 
-divides x y    = y `mod` x == 0
-dividedBy x y  = y `divides` x
--- notDivides     = not . divides
-notDivides x y    = not $ divides x y
-
 solution1 = sum [x | x <- [1..999], 3 `divides` x || 5 `divides` x]
-
-fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
 
 solution2 = sum $ filter even $ takeWhile (< 4000000) fibs
 
--- The sieve of Eratosthenes
-primesUpTo n = 2 : sieve [3,5..n]
-    where sieve (p:xs)
-            | p^2 > n   = p : xs
-            | otherwise = p : sieve (xs `minus` [p^2, p^2+2*p..])
-
--- The use of the '~' in the sieve pattern match delays the evaluation of the
--- value until the component part is actually used. 
-primes = 2 : primes'
-  where primes' = sieve [3,5..] 9 primes'
-        sieve (x:xs) q ps@ ~(p:t) 
-            | x < q     = x : sieve xs q ps
-            | otherwise = sieve (xs `minus` [q, q+2*p..]) (head t^2) t
-
--- Note that using primes rather than primesUpTo allows laziness
--- to do its jobs and stop as soon as n is factored.
-primeFactors n = primeFactors' n $ primes
-    where primeFactors' n ps
-            | n == 1    = []
-            | otherwise = let ps' = dropWhile (not . (n `dividedBy`)) ps
-                          in  case ps' of
-                          (p:ps'') -> p : (primeFactors' (n `div` p) ps')
-                          ps''     -> ps'
-
 test3     = primeFactors 600851475143
 solution3 = last $ primeFactors 600851475143
-
--- Yes, we could compare only the first half of the strings. But determining
--- how long the string actually is, probably needs equally much time as just
--- comparing a bit more.
-palindromic x = s == s'
-    where s  = show x
-          s' = reverse s
 
 solution4 = maximum [x*y | x <- [1..999], y <- [1..999], palindromic (x*y)]
 
@@ -61,20 +23,9 @@ listDivides xs y = foldr (\x accum -> accum && x `divides` y) True xs
 
 solution5 = head $ filter (listDivides [1..20]) [1..]
 
-sumOfSquares n = sum [x^2 | x <- [1..n]]
-
-squareOfSum n = (sum [1..n]) ^ 2
-
 solution6 = (squareOfSum 100) - (sumOfSquares 100)
 
 solution7 = primes !! (10001-1)
-
-digitsToInts cs = foldr (\c is-> (digitToInt c):is) [] cs
-
-consecutiveSubsets :: Int -> [Int] -> [[Int]]
-consecutiveSubsets n xs
-    | length xs >= n = (take n xs) : (consecutiveSubsets n (tail xs))
-    | otherwise      = []
 
 solution8 = maximum $ map product $ consecutiveSubsets 5 $ digitsToInts 
           $  "73167176531330624919225119674426574742355349194934"
@@ -98,30 +49,8 @@ solution8 = maximum $ map product $ consecutiveSubsets 5 $ digitsToInts
           ++ "05886116467109405077541002256983155200055935729725"
           ++ "71636269561882670428252483600823257530420752963450"
 
-interleave (x:xs) (y:ys) = x:y:(interleave xs ys)
-
--- Nick Lord "A uniform construction of some infinite coprime sequences"
-coprimes = [(2,1),(3,1)] ++ interleave (gen (2,1)) (gen (3,1))
-    where gen (m,n) = let branch1 = (2*m-n, m)
-                          branch2 = (2*m+n, m)
-                          branch3 = (  m+2*n,n)
-                      in  [branch1, branch2, branch3] 
-                          ++ (gen branch1) ++ (gen branch2) ++ (gen branch3)
-
--- Euclid's formula
-primitivePythagoreanTriples = map ppt coprimes
-    where ppt (m,n) = (m^2 - n^2, 2*m*n, m^2 + n^2)
-
-pythagoreanTripleVariations (a,b,c) = [(k*a,k*b,k*c) | k <- [1..]]
 
 
-isPT (a,b,c) = a^2 + b^2 == c^2
-
-testPPT = [] == (filter (not . isPT) $ take 100 primitivePythagoreanTriples)
-
-testPT = [] == (filter (not . isPT) $ pts)
-    where pts  = foldl (++) [] $ map ((take 5) . pythagoreanTripleVariations) ppts
-          ppts = take 10 primitivePythagoreanTriples
 
 solution9 = case pt1000 of
                 []           -> -1
@@ -514,37 +443,3 @@ amicablePairs (a:as)
 
 test21     = amicablePairs [1..284]
 solution21 = sum $ map fst $ amicablePairs [1..10000]
-
-main = do args <- getArgs
-          putStr $ solve args
-
-solve []                   = ""
-solve ("-solution1":args)  = show solution1  ++ "\n" ++ solve args
-solve ("-solution2":args)  = show solution2  ++ "\n" ++ solve args
-solve ("-test3":args)      = show test3      ++ "\n" ++ solve args
-solve ("-solution3":args)  = show solution3  ++ "\n" ++ solve args
-solve ("-solution4":args)  = show solution4  ++ "\n" ++ solve args
-solve ("-solution5":args)  = show solution5  ++ "\n" ++ solve args
-solve ("-solution6":args)  = show solution6  ++ "\n" ++ solve args
-solve ("-solution7":args)  = show solution7  ++ "\n" ++ solve args
-solve ("-solution8":args)  = show solution8  ++ "\n" ++ solve args
-solve ("-solution9":args)  = show solution9  ++ "\n" ++ solve args
-solve ("-solution10":args) = show solution10 ++ "\n" ++ solve args
-solve ("-solution11":args) = show solution11 ++ "\n" ++ solve args
-solve ("-test12":args)     = test12          ++ "\n" ++ solve args
-solve ("-solution12":args) = show solution12 ++ "\n" ++ solve args
-solve ("-solution13":args) = solution13      ++ "\n" ++ solve args
-solve ("-solution14":args) = show solution14 ++ "\n" ++ solve args
-solve ("-test15":args)     = show test15     ++ "\n" ++ solve args
-solve ("-solution15":args) = show solution15 ++ "\n" ++ solve args
-solve ("-test16":args)     = show test16     ++ "\n" ++ solve args
-solve ("-solution16":args) = show solution16 ++ "\n" ++ solve args
-solve ("-test17":args)     = test17          ++ "\n" ++ solve args
-solve ("-solution17":args) = show solution17 ++ "\n" ++ solve args
-solve ("-test18":args)     = show test18     ++ "\n" ++ solve args
-solve ("-solution18":args) = show solution18 ++ "\n" ++ solve args
-solve ("-solution19":args) = show solution19 ++ "\n" ++ solve args
-solve ("-solution20":args) = show solution20 ++ "\n" ++ solve args
-solve ("-test21":args)     = show test21     ++ "\n" ++ solve args
-solve ("-solution21":args) = show solution21 ++ "\n" ++ solve args
-solve _                    = "usage: ./euler -solution<num>\n"
