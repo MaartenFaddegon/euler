@@ -2,6 +2,8 @@
 module Euler where
 import Libnum
 import Liblist
+import Libmatrix
+import Libdate
 import Data.Char
 import Debug.Trace
 import Data.List
@@ -49,9 +51,6 @@ solution8 = maximum $ map product $ consecutiveSubsets 5 $ digitsToInts
           ++ "05886116467109405077541002256983155200055935729725"
           ++ "71636269561882670428252483600823257530420752963450"
 
-
-
-
 solution9 = case pt1000 of
                 []           -> -1
                 ((a,b,c):ts) -> a*b*c
@@ -61,31 +60,6 @@ solution9 = case pt1000 of
           takeW  = takeWhile (\(a,b,c) -> a + b + c <= 1000)
 
 solution10 = sum $ takeWhile (< 2000000) primes
-
-collength matrix = length matrix
-rowlength matrix
-    | matrix == [] = 0
-    | otherwise    = length (matrix !! 0)
-
-(!!!) matrix (m,n) = (matrix !! m) !! n
-
-col matrix n = foldr (\row col -> (row !! n):col) [] matrix
-
-diag matrix (m,n) = [matrix !!! (x+m,x+n) | x <- [0..min k l], x+m < k, x+n < l]
-    where k = rowlength matrix
-          l = collength matrix
-
--- reverse rows
-mirror = map (reverse)
-
--- all top-left to bottom right diags
-diags matrix =  [diag matrix (0,n) | n <- [0..l]] 
-             ++ [diag matrix (m,0) | m <- [1..k]] 
-    where k = rowlength matrix - 1
-          l = collength matrix - 1
-
--- cols become rows
-rotate90 matrix = [col matrix n | n <- [0..length (matrix!!0)-1]]
 
 solution11 = maximum $ map product
            $ subsets matrix ++ subsets matrix' ++ subsets matrix'' ++ subsets matrix'''
@@ -114,17 +88,6 @@ solution11 = maximum $ map product
                       ,[20,73,35,29,78,31,90,01,74,31,49,71,48,86,81,16,23,57,05,54]
                       ,[01,70,54,71,83,51,54,69,16,92,33,48,61,43,52,01,89,19,67,48]
                       ]
-
-triangularNumber n = (n * (n+1)) `div` 2
-
-triangularNumbers = [triangularNumber n | n <- [1..]]
-
-powerset :: [a] -> [[a]]
-powerset = subsequences
-
--- find all integers that divise n
-factors n  = map (\ps -> foldr (*) 1 ps) pss
-    where pss = nub $ powerset $ primeFactors n
 
 test12 = foldl (\acc (n,fs) -> acc ++ show n ++ "\t" ++ show fs ++ "\n" ) ""
        $ map (\n -> (n, factors n)) $ take 7 triangularNumbers
@@ -233,82 +196,18 @@ solution13 = take 10 $ show
            + 20849603980134001723930671666823555245252804609722
            + 53503534226472524250874054075591789781264330331690
 
-nextCollatz n = if even n then n `div` 2
-                          else 3 * n + 1
-
-collatzSequence n
-    | n == 1    = [1]
-    | otherwise = n : collatzSequence (nextCollatz n)
-
-longestCollatzChain' (m, l_m) n
-    | l_n > l_m = (n ,l_n)
-    | otherwise = (m, l_m)
-    where l_n = length $ collatzSequence n
-
-longestCollatzChain n = foldl longestCollatzChain' (1,1) [2..n]
-
 solution14 = fst $ longestCollatzChain 1000000
-
-factorial n = product [1..n]
 
 -- distinguishable permutations of right,right,down,down
 test15     = (factorial (2 +2 )) `div` ((factorial 2 ) * (factorial 2 ))
 solution15 = (factorial (20+20)) `div` ((factorial 20) * (factorial 20))
 
-sumOfDigits i = sum $ map digitToInt $ show i
-
 test16     = sumOfDigits 32768
 solution16 = sumOfDigits (2^1000)
-
-prefixAnd s
-    | s == ""              = ""
-    | "and" `isPrefixOf` s = s
-    | otherwise            = "and" ++ s
-
-numToWord i
-    | i == 0     = ""      -- the empty 0 case is used to avoid making exceptions for 20, 30 etc.
-    | i == 1     = "one"
-    | i == 2     = "two"
-    | i == 3     = "three"
-    | i == 4     = "four"
-    | i == 5     = "five"
-    | i == 6     = "six"
-    | i == 7     = "seven"
-    | i == 8     = "eight"
-    | i == 9     = "nine"
-    | i == 10    = "ten"
-    | i == 11    = "eleven"
-    | i == 12    = "twelve"
-    | i == 13    = "thirteen"
-    | i == 15    = "fifteen"
-    | i == 18    = "eighteen"
-    | i <= 19    = numToWord (i-10) ++ "teen"
-    | i <= 29    = "twenty"   ++ numToWord (i `mod` 10)
-    | i <= 39    = "thirty"   ++ numToWord (i `mod` 10)
-    | i <= 49    = "forty"    ++ numToWord (i `mod` 10)
-    | i <= 59    = "fifty"    ++ numToWord (i `mod` 10)
-    | i <= 69    = "sixty"    ++ numToWord (i `mod` 10)
-    | i <= 79    = "seventy"  ++ numToWord (i `mod` 10)
-    | i <= 89    = "eighty"   ++ numToWord (i `mod` 10)
-    | i <= 99    = "ninety"   ++ numToWord (i `mod` 10)
-    | i <= 999   =  numToWord  (i `div` 100)  ++ "hundred"  ++ (prefixAnd .numToWord) (i `mod` 100)
-    | i <= 9999  =  numToWord  (i `div` 1000) ++ "thousand" ++ (prefixAnd . numToWord) (i `mod` 1000)
 
 test17     = foldl (\acc i -> acc ++ show i ++ " " ++ numToWord i ++ "(" ++ (show . length . numToWord) i ++ ")\n") 
                    "" [18,20,21,115,342,1000]
 solution17 = foldl (\sum i -> sum + (length . numToWord) i) 0 [1..1000]
-
-zipfold f (a:as) (b1:b2:bs) = f a b1 b2 : zipfold f as (b2:bs)
-zipfold _  _      _      = []
-
-sumWithMax i m n = i + (max m n)
-
-sumRow prevSums row = sh : (sm ++ [sl])
-    where sh = head prevSums + head row
-          sl = last prevSums + last row
-          sm = zipfold sumWithMax (tail row) prevSums
-
-maximumPathSum triangle = maximum $ foldl sumRow (head triangle) (tail triangle)
 
 test18     = maximumPathSum [[3], [7, 4], [2, 4, 6], [8, 5, 9, 3]]
 solution18 = maximumPathSum [ [75]
@@ -328,88 +227,6 @@ solution18 = maximumPathSum [ [75]
                             , [04, 62, 98, 27, 23, 09, 70, 98, 73, 93, 38, 53, 60, 04, 23]
                             ]
 
-data Month     = Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec
-                 deriving (Eq, Show, Ord)
-data Date      = Date {dayOfWeek :: Day, day :: Integer, month :: Month, year :: Integer}
-                 deriving (Eq)
-data Day       = Mon | Tue | Wed | Thu | Fri | Sat | Sun
-                 deriving (Eq,Show)
-
-instance Show Date where
-    show date@(Date{ dayOfWeek=dow, day=day, month=month,year=year}) 
-         = show dow ++ " " ++ show day ++ " " ++ show month ++ " " ++ show year
-
-instance Ord Date where
-  (Date {day=day,month=month,year=year}) `compare` (Date {day=day',month=month',year=year'})
-    | year > year'   = GT
-    | year < year'   = LT
-    | month > month' = GT
-    | month < month' = LT
-    | day > day'     = GT
-    | day < day'     = LT
-    | otherwise      = EQ
-
--- A leap year occurs on any year evenly divisible by 4, but not on a century 
--- unless it is divisible by 400.
-leapYear Date {year=year} = 4 `divides` year && (100 `notDivides` year || 400 `divides` year)
-
--- Thirty days has September,
--- April, June and November.
--- All the rest have thirty-one,
--- Saving February alone,
--- Which has twenty-eight, rain or shine.
--- And on leap years, twenty-nine.
-daysInMonth date@(Date{month=month})
-    | (month == Sep) || month == Apr || month == Jun || month == Nov = 30
-    | month == Feb && leapYear date                                  = 29
-    | month == Feb                                                   = 28
-    | otherwise                                                      = 31
-
-nextMonth month
-    | month == Jan = Feb
-    | month == Feb = Mar
-    | month == Mar = Apr
-    | month == Apr = May
-    | month == May = Jun
-    | month == Jun = Jul
-    | month == Jul = Aug
-    | month == Aug = Sep
-    | month == Sep = Oct
-    | month == Oct = Nov
-    | month == Nov = Dec
-    | month == Dec = Jan
-
-nextDay day
-    | day == Mon = Tue
-    | day == Tue = Wed
-    | day == Wed = Thu
-    | day == Thu = Fri
-    | day == Fri = Sat
-    | day == Sat = Sun
-    | day == Sun = Mon
-
-mod1 i j
-    | i > j     = 1
-    | otherwise = i
-
-nextDate date@(Date{dayOfWeek=dow,  day=day,  month=month,  year=year})
-             = Date{dayOfWeek=dow', day=day', month=month', year=year'}
-    where dow'                                 = nextDay dow
-          day'                                 = (day + 1) `mod1` (daysInMonth date)
-          month'
-            | day' > day                       = month
-            | otherwise                        = nextMonth month
-          year'
-            | month /= month' && month' == Jan = year + 1
-            | otherwise                        = year
-
--- 1 Jan 1900 was a Monday.
-dateList = dateList' Date{dayOfWeek=Mon, day=1, month=Jan, year=1900}
-    where dateList' d = d : dateList' (nextDate d)
-
-isFirstOfMonth Date{day=day}       = day == 1
-isSunday       Date{dayOfWeek=dow} = dow == Sun
-
 solution19 = length
            $ filter    (\d -> isFirstOfMonth d && isSunday d) 
            $ takeWhile (< Date{dayOfWeek=shutup, day=31,month=Dec,year=2000})
@@ -421,25 +238,6 @@ solution19 = length
 
 solution20 = (sumOfDigits . factorial) 100
 
-properFactors i
-    | length f <= 1 = []
-    | otherwise     = init f
-    where f = factors i
-
-amicable a
-    | b == 0    = Nothing
-    | d b == a  = Just (a, b)
-    | otherwise = Nothing
-    where d i = case properFactors i of
-                [] -> 0
-                fs -> sum fs
-          b = d a
-
-amicablePairs []     = []
-amicablePairs (a:as)
-    | isJust pair = fromJust pair : amicablePairs as
-    | otherwise   = amicablePairs as
-    where pair = amicable a
 
 test21     = amicablePairs [1..284]
 solution21 = sum $ map fst $ amicablePairs [1..10000]

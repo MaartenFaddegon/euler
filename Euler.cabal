@@ -1,0 +1,15 @@
+Name:           Euler
+Version:        0.0.1
+License:        BSD3
+Author:         Maarten Faddegon
+Build-Type:     Simple
+Cabal-Version:  >= 1.10
+
+library
+  exposed-modules:   Euler
+  other-modules:     Libdate Liblist Libmatrix Libnum
+  hs-source-dirs:    src
+  Build-Depends:     base >= 4 && < 5, containers >= 0.5 && < 0.6,
+                     data-ordlist >= 0.4 && < 0.5
+  default-language:  Haskell2010
+  ghc-prof-options:  -auto-all
