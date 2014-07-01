@@ -82,24 +82,30 @@ factors :: Integer -> [Integer]
 factors n  = map (\ps -> foldr (*) 1 ps) pss
     where pss = nub $ powerset $ primeFactors n
 
-collatzSequence :: Integer -> [Integer]
+collatzSequence :: Int -> [Int]
 collatzSequence n
     | n == 1    = [1]
     | otherwise = n : collatzSequence (nextCollatz n)
-        where nextCollatz n = if even n then n `div` 2
-                              else 3 * n + 1
 
+nextCollatz :: Int -> Int
+nextCollatz n = if even n then n `div` 2
+                else 3 * n + 1
 
-longestCollatzChain' :: (Integer,Int) -> Integer -> (Integer,Int)
+longestCollatzChain' :: (Int,Int) -> Int -> (Int,Int)
 longestCollatzChain' (m, l_m) n
     | l_n > l_m = (n ,l_n)
     | otherwise = (m, l_m)
     where l_n = length $ collatzSequence n
 
-longestCollatzChain :: Integer -> (Integer,Int)
+
+-- Alternatively we could build a map of numbers to the
+-- lenght of the Collatz chain from that number and build
+-- this map as we go.
+
+longestCollatzChain :: Int -> (Int,Int)
 longestCollatzChain n = foldl longestCollatzChain' (1,1) [2..n]
 
-factorial :: Integer -> Integer
+factorial :: Int -> Int
 factorial n = product [1..n]
 
 numToWord i
