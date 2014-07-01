@@ -154,6 +154,7 @@ properFactors i
 
 amicable a
     | b == 0    = Nothing
+    | b == a    = Nothing
     | d b == a  = Just (a, b)
     | otherwise = Nothing
     where d i = case properFactors i of
