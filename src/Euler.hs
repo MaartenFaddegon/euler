@@ -4,6 +4,7 @@ import Libnum
 import Liblist
 import Libmatrix
 import Libdate
+import Libtext
 import Data.Char
 import Debug.Trace
 import Data.List
@@ -241,3 +242,8 @@ solution20 = (sumOfDigits . factorial) 100
 
 test21     = amicablePairs [1..284]
 solution21 = sum $ map fst $ amicablePairs [1..10000]
+
+solution22 = do f <- readFile "names.txt"
+                let vals  = ((map upperValue)  . upperSort . lines) f
+                    prods = map (uncurry (*)) (zip [1..] vals)
+                print (sum prods)
