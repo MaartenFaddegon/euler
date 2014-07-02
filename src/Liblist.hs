@@ -27,3 +27,9 @@ sumOfDigits i = sum $ map digitToInt $ show i
 zipfold f (a:as) (b1:b2:bs) = f a b1 b2 : zipfold f as (b2:bs)
 zipfold _  _      _         = []
 
+combinations :: [a] -> [(a,a)]
+combinations [] = []
+combinations (x:xs) = combinationsWith x xs ++ combinations xs
+
+combinationsWith :: a -> [a] -> [(a,a)]
+combinationsWith x xs  = zip (cycle [x]) (x:xs)

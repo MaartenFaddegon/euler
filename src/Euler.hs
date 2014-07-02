@@ -247,3 +247,7 @@ solution22 = do f <- readFile "names.txt"
                 let vals  = ((map upperValue)  . upperSort . lines) f
                     prods = map (uncurry (*)) (zip [1..] vals)
                 print (sum prods)
+
+test23 = nonAbundantSumsUpTo 24
+
+solution23 = (sum . nonAbundantSumsUpTo) 28123
