@@ -33,3 +33,8 @@ combinations (x:xs) = combinationsWith x xs ++ combinations xs
 
 combinationsWith :: a -> [a] -> [(a,a)]
 combinationsWith x xs  = zip (cycle [x]) (x:xs)
+
+breaks :: (a->Bool) -> [a] -> [[a]]
+breaks p xs = case break p xs of
+ (pre,[])  -> [pre]
+ (pre,rem) -> pre : breaks p (tail rem)

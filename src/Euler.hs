@@ -244,7 +244,8 @@ test21     = amicablePairs [1..284]
 solution21 = sum $ map fst $ amicablePairs [1..10000]
 
 solution22 = do f <- readFile "names.txt"
-                let vals  = ((map upperValue)  . upperSort . lines) f
+                let names = breaks (== ',') (filter (/='"') f)
+                    vals  = ((map upperValue)  . upperSort) names
                     prods = map (uncurry (*)) (zip [1..] vals)
                 print (sum prods)
 
