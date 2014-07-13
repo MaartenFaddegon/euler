@@ -2,7 +2,7 @@
 
 module Libnum where
 import Data.List.Ordered (minus)
-import Liblist
+import Liblist (interleave,powerset)
 import Data.List
 import Data.Array
 import Control.Monad (foldM)

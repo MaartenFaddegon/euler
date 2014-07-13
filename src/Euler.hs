@@ -252,3 +252,5 @@ solution22 = do f <- readFile "names.txt"
 test23 = nonAbundantSumsUpTo 24
 
 solution23 = (sum . nonAbundantSumsUpTo) 28123
+
+solution24 = permutation [0,1,2,3,4,5,6,7,8,9] 1000000
