@@ -29,4 +29,5 @@ solve ("-solution21":args) = do print solution21;    solve args
 solve ("-solution22":args) = do solution22;          solve args
 solve ("-solution23":args) = do print solution23;    solve args
 solve ("-solution24":args) = do print solution24;    solve args
+solve ("-solution25":args) = do print solution25;    solve args
 solve _                    = print "usage: ./euler -solution<num>\n"
