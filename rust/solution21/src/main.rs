@@ -1,4 +1,4 @@
-fn d(n: u128) -> u128 {
+fn d(n: usize) -> usize {
     let mut vec = Vec::new();
     for x in 1..n {
         if n % x == 0 {
@@ -9,13 +9,15 @@ fn d(n: u128) -> u128 {
 }
 
 fn main() {
-    let const n = 300;
-    let mut d_cache: [u128; n] = [0; n];
-    for x in 1..n {
+    const N: usize = 10000;
+    let mut d_cache: [usize; N] = [0; N];
+    for x in 1..N {
         d_cache[x] = d(x);
     }
 
-    for x in 1..n {
+    let mut s = 0;
+
+    for x in 1..N {
       for y in 1..x {
           if x != y && d_cache[x] == y && d_cache[y] == x {
               println!("amicable {} {}", x, y);
@@ -24,4 +26,6 @@ fn main() {
           }
       }
     }
+
+    println!("sum(amicable numbers < {}) = {}", N, s);
 }
